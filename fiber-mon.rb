@@ -32,7 +32,8 @@ class FiberMon
   attr_reader :current
 
   def start
-    Thread.start do
+    
+    th = Thread.start{
       loop do
 	@wait_resume_mx.synchronize do
 	  while @wait_resume.empty? && @entries.empty?
@@ -48,7 +49,8 @@ class FiberMon
 	@current.resume if @current
 	@current = nil
       end
-    end
+    }
+    th
   end
 
   def entry_fiber(p0 = nil, &block)
@@ -59,7 +61,7 @@ class FiberMon
     end
   end
   alias entry entry_fiber
-  alias start entry_fiber
+#  alias start entry_fiber
 
   def yield
     @wait_resume_mx.synchronize do
