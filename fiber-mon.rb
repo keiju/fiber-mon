@@ -20,8 +20,6 @@ class FiberMon
     #      @owner = nil
     #      @mon_mxmx = Mutex.new
 
-    @started = false
-
     @current = nil
 
     @entries = []
@@ -29,15 +27,12 @@ class FiberMon
     @wait_resume = []
     @wait_resume_mx = ::Mutex.new
     @wait_resume_cv = ::ConditionVariable.new
-
-    mon_start
   end
 
   attr_reader :current
 
-  def mon_start
-    return if @started
-    @started = true
+  def start
+    
     th = Thread.start{
       loop do
 	@wait_resume_mx.synchronize do
@@ -51,25 +46,12 @@ class FiberMon
 	    @current = @wait_resume.shift
 	  end
 	end
-	begin
-	  mx = @current.resume if @current
-#	rescue
-#	  if $DEBUG
-#	    p $!
-#	    puts $@
-#	  end
-#	  raise
-	ensure
-	  if mx.kind_of?(Monitor)
-	    mx.unlock
-	  end
-	  @current = nil
-	end
+	@current.resume if @current
+	@current = nil
       end
     }
     th
   end
-  alias start mon_start
 
   def entry_fiber(p0 = nil, &block)
     p0 = block if block
@@ -129,19 +111,17 @@ class FiberMon
   def fiber_yield
     begin
       mon_check_owner
-    rescue
-      return Fiber.yield
-    end
-    if (count = mon_exit_for_cond) > 0
+      count = mon_exit_for_cond
+      @mon_mutex.unlock if count > 0
       begin
-	Fiber.yield @mon_mutex
+	Fiber.yield
       ensure
-	@mon_mutex.lock
+	@mon_mutex.lock if count > 0
+	mon_enter_for_cond(count)
       end
-    else
+    rescue
       Fiber.yield
     end
-    mon_enter_for_cond(count)
   end
 
   def new_mon
