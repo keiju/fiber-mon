@@ -60,7 +60,7 @@ class FiberMon
 #	  end
 #	  raise
 	ensure
-	  if mx.kind_of?(Monitor)
+	  if mx.kind_of?(Mutex)
 	    mx.unlock
 	  end
 	  @current = nil
@@ -178,17 +178,19 @@ class FiberMon
     def fiber_yield
       begin
 	mon_check_owner
-	count = mon_exit_for_cond
-	@mon_mutex.unlock if count > 0
-	begin
-	  Fiber.yield
-	ensure
-	  @mon_mutex.lock if count > 0
-	  mon_enter_for_cond(count)
-	end
       rescue
+	return Fiber.yield
+      end
+      if (count = mon_exit_for_cond) > 0
+	begin
+	  Fiber.yield @mon_mutex
+	ensure
+	  @mon_mutex.lock
+	end
+      else
 	Fiber.yield
       end
+      mon_enter_for_cond(count)
     end
     
     alias yield fiber_yield

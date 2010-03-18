@@ -1,4 +1,13 @@
-2010-02-23  Keiju Ishitsuka  <keiju@emperor2.pendome>
+2010-03-18  Keiju Ishitsuka  <keiju@emperor2.pendome>
+
+	* FiberMon#mon_start: ロックファイルのクラスが間違っていた.
+	* FiberMon::Monitor#fiber_yield: FiberMon#fiber_yieldと同じようにした.
+
+2010-03-14  Keiju Ishitsuka  <keiju@ishitsuka.com>
+	
+	* ちょっと変えた
+	
+2010-02-23  Keiju Ishitsuka  <keiju@ishitsuka.com>
 
 	* 初版
 	
