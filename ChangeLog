@@ -1,5 +1,6 @@
 2010-10-22  Keiju Ishitsuka  <keiju@ishitsuka.com>
-	
+
+	* LICENSE, fiber-mob.rb: コピーライトの年を間違っていた.
 	* LICENSE: 追加
 
 2010-03-18  Keiju Ishitsuka  <keiju@ishitsuka.com>
