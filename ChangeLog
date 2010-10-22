@@ -1,7 +1,16 @@
-2010-10-22  Keiju Ishitsuka  <keiju@emperor2.pendome>
+2010-10-22  Keiju Ishitsuka  <keiju@ishitsuka.com>
+	
+	* LICENSE: 追加
 
-	* LICENSE: �ǉ�
+2010-03-18  Keiju Ishitsuka  <keiju@ishitsuka.com>
 
+	* FiberMon#mon_start: ロックファイルのクラスが間違っていた.
+	* FiberMon::Monitor#fiber_yield: FiberMon#fiber_yieldと同じようにした.
+
+2010-03-14  Keiju Ishitsuka  <keiju@ishitsuka.com>
+	
+	* ちょっと変えた
+	
 2010-02-23  Keiju Ishitsuka  <keiju@ishituska.com>
 
 	* first version
