@@ -1,10 +1,7 @@
 #
 #   fiber-mon.rb - 
-#   	by Keiju ISHITSUKA(Penta Advanced Labrabries, Co.,Ltd)
-#
-# --
-#
-#   
+#   	Copyright (C) 1996-2010 Keiju ISHITSUKA
+#				(Penta Advanced Labrabries, Co.,Ltd)
 #
 
 require "forwardable"
