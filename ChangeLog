@@ -1,5 +1,9 @@
 2010-10-28  Keiju Ishitsuka  <keiju@ishitsuka.com>
 
+	* fiber-mon.gemspec: ちょっと修正
+
+2010-10-28  Keiju Ishitsuka  <keiju@ishitsuka.com>
+
 	* fiber-mon.gemspec: 追加
 
 2010-10-22  Keiju Ishitsuka  <keiju@ishitsuka.com>

@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.summary = "Simple fiber scheduler for Ruby"
   s.rubyforge_project = s.name
   s.homepage = "http://github.com/keiju/fiber-mon"
-  s.version = `git tag`.split.collect{|e| e.sub(/v([0-9]\.[0-9]\.[0-9]).*/, "\\1")}.sort.last
+  s.version = `git tag`.split.collect{|e| e.sub(/v([0-9]+\.[0-9]+\.[0-9]+).*/, "\\1")}.sort.last
   s.require_path = "."
 #  s.test_file = ""
 #  s.executable = ""
