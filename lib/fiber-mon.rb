@@ -4,10 +4,13 @@
 #				(Penta Advanced Labrabries, Co.,Ltd)
 #
 
+require "xthread"
+require "fibermon.so"
+
 require "forwardable"
 require "monitor"
 
-class FiberMon
+class FiberMon0
   include MonitorMixin
 
   def initialize

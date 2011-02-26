@@ -1,13 +1,18 @@
 
+p 1
 require "fiber-mon"
+p 2
 
 Thread.abort_on_exception = true
 
 mon = FiberMon.new
+p 3
 
 case ARGV[0]
 when "0"
+p 4
   mon.entry{p 1}
+p 5
   sleep 5
 when "1"
 #  Thread.abort_on_exception = true

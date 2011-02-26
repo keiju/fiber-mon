@@ -1,5 +1,7 @@
+Makefile
 *~
 \#*\#
 .\#*
 pkg
-
+*.o
+*.so
