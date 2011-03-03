@@ -1,3 +1,8 @@
+2011-03-03  Keiju Ishitsuka  <keiju@ishitsuka.com>
+
+	* C-API変更
+	* fiber-mon.h: 追加
+
 2011-02-26  Keiju Ishitsuka  <keiju@ishitsuka.com>
 
 	* C-version
