@@ -9,6 +9,7 @@
 #include "ruby.h"
 
 #include "xthread.h"
+#include "fiber_mon.h"
 
 VALUE rb_cFiberMon;
 VALUE rb_cFiberMonMonitor;
@@ -63,7 +64,7 @@ fibermon_alloc(VALUE klass)
   
   mon->started = 0;
   mon->current_fib = Qnil;
-  mon->entries = rb_queue_new();
+  mon->entries = rb_xthread_queue_new();
   
   mon->obsolate_mon = Qnil;
   return obj;
@@ -132,7 +133,7 @@ fibermon_start_cond_wait(VALUE self)
   fibermon_t *mon;
   GetFiberMonPtr(self, mon);
 
-  return rb_cond_wait(mon->wait_resume_cv, mon->wait_resume_mx, Qnil);
+  return rb_xthread_cond_wait(mon->wait_resume_cv, mon->wait_resume_mx, Qnil);
 }
 */
 
@@ -171,7 +172,7 @@ fibermon_start(VALUE self)
   while(1) {
     VALUE entry;
 
-    entry = rb_queue_pop(mon->entries);
+    entry = rb_xthread_queue_pop(mon->entries);
     if (CLASS_OF(entry) == rb_cProc) {
       struct fibermon_start_fiber_creation_arg arg;
       arg.args = rb_ary_new3(1, self);
@@ -194,7 +195,7 @@ rb_fibermon_entry_fiber(VALUE self, VALUE fib)
   fibermon_t *mon;
   GetFiberMonPtr(self, mon);
 
-  rb_queue_push(mon->entries, fib);
+  rb_xthread_queue_push(mon->entries, fib);
 }
 
 
@@ -220,7 +221,7 @@ fibermon_yield_obso(VALUE self)
   fibermon_t *mon;
   GetFiberMonPtr(self, mon);
 
-  if (!rb_monitor_vaid_owner_p(mon->obsolate_mon)) {
+  if (!rb_fibermon_monitor_valid_owner_p(mon->obsolate_mon)) {
     return rb_fiber_yield(0, NULL);
   }
   else {
@@ -234,7 +235,7 @@ rb_fibermon_yield(VALUE self)
   fibermon_t *mon;
   GetFiberMonPtr(self, mon);
 
-  rb_queue_push(mon->entries, mon->current_fib);
+  rb_xthread_queue_push(mon->entries, mon->current_fib);
 
   if (NIL_P(mon->obsolate_mon)) {
     return rb_fiber_yield(0, NULL);
@@ -469,6 +470,7 @@ rb_fibermon_monitor_wait_cond_ensure(struct fibermon_monitor_wait_cond_arg *arg)
 {
   fibermon_monitor_t *mon = arg->mon;
 
+  rb_mutex_lock(mon->mutex);
   mon->owner = rb_thread_current();
   mon->count = arg->count;
 }
@@ -483,7 +485,8 @@ rb_fibermon_monitor_wait_cond(VALUE self)
   arg.count = mon->count;
   mon->owner = Qnil;
   mon->count = 0;
-  
+  rb_mutex_unlock(mon->mutex);
+
   arg.mon = mon;
   rb_ensure(rb_fibermon_monitor_wait_cond_yield, Qnil,
 	    rb_fibermon_monitor_wait_cond_ensure, (VALUE)&arg);
@@ -536,7 +539,7 @@ fibermon_cond_alloc(VALUE klass)
 			      &fibermon_cond_data_type, cv);
   
   cv->monitor = Qnil;
-  cv->waitings = rb_fifo_new();
+  cv->waitings = rb_xthread_fifo_new();
   
   return obj;
 }
@@ -569,7 +572,7 @@ rb_fibermon_cond_signal(VALUE self)
 
   GetFiberMonCondPtr(self, cv);
 
-  fb = rb_fifo_pop(cv->waitings);
+  fb = rb_xthread_fifo_pop(cv->waitings);
   if (!NIL_P(fb)) {
     rb_fibermon_monitor_entry_fiber(cv->monitor, fb);
   }
@@ -584,7 +587,7 @@ rb_fibermon_cond_broadcast(VALUE self)
 
   GetFiberMonCondPtr(self, cv);
 
-  while (!NIL_P(fb = rb_fifo_pop(cv->waitings))) {
+  while (!NIL_P(fb = rb_xthread_fifo_pop(cv->waitings))) {
     rb_fibermon_monitor_entry_fiber(cv->monitor, fb);
   }
   return self;
@@ -597,7 +600,7 @@ rb_fibermon_cond_wait(VALUE self)
   VALUE fb;
 
   GetFiberMonCondPtr(self, cv);
-  rb_fifo_push(cv->waitings, rb_fiber_current());
+  rb_xthread_fifo_push(cv->waitings, rb_fiber_current());
   
   return rb_fibermon_monitor_wait_cond(cv->monitor);
 }
@@ -605,7 +608,7 @@ rb_fibermon_cond_wait(VALUE self)
 VALUE
 rb_fibermon_cond_wait_until(VALUE self)
 {
-  while(!RTEST(rb_yield)) {
+  while(!RTEST(rb_yield(Qnil))) {
     rb_fibermon_cond_wait(self);
   }
   return self;
@@ -614,13 +617,13 @@ rb_fibermon_cond_wait_until(VALUE self)
 VALUE
 rb_fibermon_cond_wait_while(VALUE self)
 {
-  while(RTEST(rb_yield)) {
+  while(RTEST(rb_yield(Qnil))) {
     rb_fibermon_cond_wait(self);
   }
   return self;
 }
 
-Init_fibermon()
+Init_fiber_mon()
 {
   rb_cFiberMon = rb_define_class("FiberMon", rb_cObject);
   rb_define_alloc_func(rb_cFiberMon, fibermon_alloc);

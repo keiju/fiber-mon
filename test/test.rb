@@ -75,6 +75,46 @@ when "4"
   end
       
   sleep 2
+
+when "5"
+  mx = mon.new_mon
+  cv = mx.new_cv
+  x = -1
+  mon.entry do
+    c = 0
+    loop do 
+      mx.synchronize do 
+	cv.wait_while{x != 0}
+	puts "A: #{c += 1}"
+	x = -1
+      end
+      mon.yield
+    end
+  end
+  mon.entry do
+    c = 0
+    loop do 
+      mx.synchronize do 
+	cv.wait_while{x != 1}
+	puts "B: #{c += 1}"
+	x = -1
+      end
+      mon.yield
+    end
+  end
+
+
+  Thread.start do
+    loop do
+      mx.synchronize do
+	x = rand(2)
+	puts "C: #{x}"
+	cv.broadcast
+      end
+    end
+  end
+      
+  sleep 4
 end
 
   

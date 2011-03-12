@@ -1,3 +1,3 @@
 require 'mkmf'
 
-create_makefile("fibermon")
+create_makefile("fiber_mon")

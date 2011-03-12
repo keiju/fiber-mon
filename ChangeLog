@@ -1,3 +1,8 @@
+2011-03-12  Keiju Ishitsuka  <keiju@ishitsuka.com>
+
+	* xthreadのAPI変更に伴う修正
+	* ruby版のクラス名変更
+
 2011-03-03  Keiju Ishitsuka  <keiju@ishitsuka.com>
 
 	* C-API変更
