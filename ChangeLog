@@ -1,3 +1,7 @@
+2011-03-24  Keiju Ishitsuka  <keiju@ishitsuka.com>
+
+	* fibermon_startで rb_fiber_newへのパラメータ渡しが不適切だった.
+
 2011-03-12  Keiju Ishitsuka  <keiju@ishitsuka.com>
 
 	* xthreadのAPI変更に伴う修正

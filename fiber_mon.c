@@ -138,27 +138,28 @@ fibermon_start_cond_wait(VALUE self)
 */
 
 static VALUE
-fibermon_start_fib_resume(fibermon_t *mon)
+fibermon_start_fib_resume(VALUE self)
 {
+  fibermon_t *mon;
+  
+  GetFiberMonPtr(self, mon);
   rb_fiber_resume(mon->current_fib, 0, NULL);
 }
 
 static VALUE
-fibermon_start_fib_ensure(fibermon_t *mon)
+fibermon_start_fib_ensure(VALUE self)
 {
+  fibermon_t *mon;
+
+  GetFiberMonPtr(self, mon);
   mon->current_fib = Qnil;
   return Qnil;
 }
 
-struct fibermon_start_fiber_creation_arg {
-  VALUE args;
-  VALUE proc;
-};
-
 static VALUE
-fibermon_start_fiber_creation(VALUE x, struct fibermon_start_fiber_creation_arg *arg)
+fibermon_start_fiber_creation(VALUE x, VALUE arg)
 {
-  rb_proc_call(arg->proc, arg->args);
+  rb_proc_call(rb_ary_entry(arg, 0), rb_ary_entry(arg, 1));
 }
 
 static VALUE
@@ -168,25 +169,24 @@ fibermon_start(VALUE self)
   VALUE block;
   
   GetFiberMonPtr(self, mon);
-  
+
   while(1) {
     VALUE entry;
 
     entry = rb_xthread_queue_pop(mon->entries);
     if (CLASS_OF(entry) == rb_cProc) {
-      struct fibermon_start_fiber_creation_arg arg;
-      arg.args = rb_ary_new3(1, self);
-      arg.proc = entry;
+      VALUE arg = rb_ary_new3(2, entry, rb_ary_new3(1, self));
   
       mon->current_fib =
-	rb_fiber_new(fibermon_start_fiber_creation, (VALUE)&arg);
+	rb_fiber_new(fibermon_start_fiber_creation, (VALUE)arg);
     }
     else {
       mon->current_fib = entry;
     }
-    rb_ensure(fibermon_start_fib_resume, (VALUE)mon,
-	      fibermon_start_fib_ensure, (VALUE)mon);
+    rb_ensure(fibermon_start_fib_resume, (VALUE)self,
+	      fibermon_start_fib_ensure, (VALUE)self);
   }
+  return self;
 }
 
 VALUE
