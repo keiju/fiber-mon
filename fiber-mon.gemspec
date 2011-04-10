@@ -13,7 +13,11 @@ Gem::Specification.new do |s|
   s.require_path = "."
 #  s.test_file = ""
 #  s.executable = ""
-  s.files = "fiber-mon.rb"
+  s.files = ["fiber_mon.c", "fiber_mon.h", "xthread.h", "lib/fiber-mon.rb"]
+  s.extensions = ["extconf.rb"]
+
+  s.add_dependency("xthread", ">= 0.1.3")
+
   s.description = <<EOF
 Simple fiber scheduler for Ruby.
 EOF
