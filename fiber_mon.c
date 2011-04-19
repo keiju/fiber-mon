@@ -49,10 +49,19 @@ fibermon_memsize(const void *ptr)
   return ptr ? sizeof(fibermon_t) : 0;
 }
 
+#ifdef HAVE_RB_DATA_TYPE_T_FUNCTION
 static const rb_data_type_t fibermon_data_type = {
     "fibermon",
     {fibermon_mark, fibermon_free, fibermon_memsize,},
 };
+#else
+static const rb_data_type_t fibermon_data_type = {
+    "fibermon",
+    fibermon_mark,
+    fibermon_free,
+    fibermon_memsize,
+};
+#endif
 
 static VALUE
 fibermon_alloc(VALUE klass)
@@ -320,10 +329,19 @@ fibermon_monitor_memsize(const void *ptr)
   return ptr ? sizeof(fibermon_monitor_t) : 0;
 }
 
+#ifdef HAVE_RB_DATA_TYPE_T_FUNCTION
 static const rb_data_type_t fibermon_monitor_data_type = {
     "fibermon_monitor",
     {fibermon_monitor_mark, fibermon_monitor_free, fibermon_monitor_memsize,},
 };
+#else
+static const rb_data_type_t fibermon_monitor_data_type = {
+    "fibermon_monitor",
+    fibermon_monitor_mark,
+    fibermon_monitor_free,
+    fibermon_monitor_memsize,
+};
+#endif
 
 static VALUE
 fibermon_monitor_alloc(VALUE klass)
@@ -524,10 +542,19 @@ fibermon_cond_memsize(const void *ptr)
   return ptr ? sizeof(fibermon_cond_t) : 0;
 }
 
+#ifdef HAVE_RB_DATA_TYPE_T_FUNCTION
 static const rb_data_type_t fibermon_cond_data_type = {
   "fibermon_cond",
   {fibermon_cond_mark, fibermon_cond_free, fibermon_cond_memsize,},
 };
+#else
+static const rb_data_type_t fibermon_cond_data_type = {
+  "fibermon_cond",
+  fibermon_cond_mark,
+  fibermon_cond_free,
+  fibermon_cond_memsize,
+};
+#endif
 
 static VALUE
 fibermon_cond_alloc(VALUE klass)
