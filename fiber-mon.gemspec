@@ -1,6 +1,13 @@
 
 require "rubygems"
 
+tag = `git tag`.split.sort.last
+v, dmy, p = tag.scan(/^v([0-9]+\.[0-9]+\.[0-9]+)(-([0-9]+))?/).first
+if p.to_i > 0
+  v += "."+p
+end
+p v
+
 Gem::Specification.new do |s|
   s.name = "fiber-mon"
   s.authors = "Keiju.Ishitsuka"
@@ -9,7 +16,7 @@ Gem::Specification.new do |s|
   s.summary = "Simple fiber scheduler for Ruby"
   s.rubyforge_project = s.name
   s.homepage = "http://github.com/keiju/fiber-mon"
-  s.version = `git tag`.split.collect{|e| e.sub(/v([0-9]+\.[0-9]+\.[0-9]+).*/, "\\1")}.sort.last
+  s.version = v
   s.require_path = "."
 #  s.test_file = ""
 #  s.executable = ""
